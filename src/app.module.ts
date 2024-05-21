@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
+import { RateLimiterMiddleware } from './rate-limiter/rate-limiter.middleware';
 
 @Module({
   imports: [
@@ -10,4 +11,10 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RateLimiterMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL }); // Apply to all routes
+  }
+}
